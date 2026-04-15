@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM mcr.microsoft.com/playwright/python:v1.53.0-jammy
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -11,7 +11,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN playwright install chromium
-RUN playwright install-deps chromium
 
 COPY . .
 
