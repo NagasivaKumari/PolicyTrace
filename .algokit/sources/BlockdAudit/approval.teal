@@ -1,0 +1,137 @@
+#pragma version 11
+#pragma typetrack false
+
+
+main:
+    intcblock 0 1 2
+    bytecblock "total_audits" 0x151f7c75
+    txn ApplicationID
+    bnz main_after_if_else@2
+
+
+    bytec_0
+    intc_0
+    app_global_put
+
+main_after_if_else@2:
+
+
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@8
+    pushbytess 0x7b30cab1 0xe1d6e56b
+    txna ApplicationArgs 0
+    match anchor_audit get_total_audits
+    err
+
+main_create_NoOp@8:
+
+
+    pushbytes 0x4c5c61ba
+    txna ApplicationArgs 0
+    match main_create_route@9
+    err
+
+main_create_route@9:
+
+
+    intc_1
+    return
+
+
+
+anchor_audit:
+
+
+    txna ApplicationArgs 1
+    dup
+    intc_0
+    extract_uint16
+    intc_2
+    +
+    dig 1
+    len
+    ==
+    assert
+    extract 2 0
+    txna ApplicationArgs 2
+    len
+    pushint 8
+    ==
+    assert
+    txna ApplicationArgs 3
+    dup
+    intc_0
+    extract_uint16
+    intc_2
+    +
+    dig 1
+    len
+    ==
+    assert
+    extract 2 0
+    txna ApplicationArgs 4
+    dup
+    intc_0
+    extract_uint16
+    intc_2
+    +
+    swap
+    len
+    ==
+    assert
+
+
+    intc_0
+    bytec_0
+    app_global_get_ex
+    assert
+    intc_1
+    +
+    bytec_0
+    swap
+    app_global_put
+
+
+    pushbytes "BLOCKD_AUDIT:"
+    uncover 2
+    concat
+    pushbytes ":"
+    concat
+    swap
+    concat
+
+
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_1
+    swap
+    concat
+    log
+    intc_1
+    return
+
+
+
+get_total_audits:
+
+
+    intc_0
+    bytec_0
+    app_global_get_ex
+    assert
+
+
+    itob
+    bytec_1
+    swap
+    concat
+    log
+    intc_1
+    return

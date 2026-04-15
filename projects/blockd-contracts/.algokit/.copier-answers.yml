@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 1.8.1
+_src_path: gh:algorandfoundation/algokit-python-template
+author_email: contact@blockd.ai
+author_name: BLOCKD Team
+contract_name: blockd_audit
+deployment_language: python
+preset_name: production
+project_name: blockd-contracts
+

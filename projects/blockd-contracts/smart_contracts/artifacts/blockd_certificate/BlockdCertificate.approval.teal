@@ -1,0 +1,245 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 2
+    bytecblock "total_certificates" 0x151f7c75 "issuer" "certificates"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/blockd_certificate/contract.py:5
+    // self.total_certificates = UInt64(0)
+    bytec_0 // "total_certificates"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/blockd_certificate/contract.py:7
+    // self.version = String("2.0.0")
+    pushbytess "version" "2.0.0"
+    app_global_put
+    // smart_contracts/blockd_certificate/contract.py:8
+    // self.issuer = arc4.Address(Global.creator_address)
+    bytec_2 // "issuer"
+    global CreatorAddress
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/blockd_certificate/contract.py:3
+    // class BlockdCertificate(ARC4Contract):
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@9
+    pushbytess 0x55addaf3 0x487f932c 0x887b66d8 // method "issue_certificate(string,string)uint64", method "get_certificate_asset(string)uint64", method "get_total_certificates()uint64"
+    txna ApplicationArgs 0
+    match issue_certificate get_certificate_asset get_total_certificates
+    err
+
+main_create_NoOp@9:
+    // smart_contracts/blockd_certificate/contract.py:3
+    // class BlockdCertificate(ARC4Contract):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@10
+    err
+
+main_create_route@10:
+    // smart_contracts/blockd_certificate/contract.py:10
+    // @arc4.abimethod(allow_actions=["NoOp"], create="require")
+    intc_1 // 1
+    return
+
+
+// contract.BlockdCertificate.issue_certificate[routing]() -> void:
+issue_certificate:
+    // smart_contracts/blockd_certificate/contract.py:14
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/blockd_certificate/contract.py:21-22
+    // # Access control: certificates represent an attestation and must be issuer-controlled
+    // assert arc4.Address(Txn.sender) == self.issuer, "Only issuer can issue certificates"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "issuer"
+    app_global_get_ex
+    assert // check self.issuer exists
+    ==
+    assert // Only issuer can issue certificates
+    // smart_contracts/blockd_certificate/contract.py:23
+    // assert scan_id, "scan_id required"
+    dig 1
+    len
+    assert // scan_id required
+    // smart_contracts/blockd_certificate/contract.py:24
+    // assert ipfs_url, "ipfs_url required"
+    dup
+    len
+    assert // ipfs_url required
+    // smart_contracts/blockd_certificate/contract.py:25
+    // assert scan_id not in self.certificates, "Certificate already issued for scan"
+    bytec_3 // "certificates"
+    uncover 2
+    concat
+    dup
+    box_len
+    bury 1
+    !
+    assert // Certificate already issued for scan
+    // smart_contracts/blockd_certificate/contract.py:27-35
+    // # Note: MBR for the box and the asset must be covered by the caller
+    // asset_mint = itxn.AssetConfig(
+    //     asset_name=String("BlockD Certificate"),
+    //     unit_name=String("BLKD"),
+    //     total=1,
+    //     decimals=0,
+    //     default_frozen=False,
+    //     url=ipfs_url,
+    // ).submit()
+    itxn_begin
+    swap
+    itxn_field ConfigAssetURL
+    // smart_contracts/blockd_certificate/contract.py:33
+    // default_frozen=False,
+    intc_0 // 0
+    itxn_field ConfigAssetDefaultFrozen
+    // smart_contracts/blockd_certificate/contract.py:32
+    // decimals=0,
+    intc_0 // 0
+    itxn_field ConfigAssetDecimals
+    // smart_contracts/blockd_certificate/contract.py:31
+    // total=1,
+    intc_1 // 1
+    itxn_field ConfigAssetTotal
+    // smart_contracts/blockd_certificate/contract.py:30
+    // unit_name=String("BLKD"),
+    pushbytes "BLKD"
+    itxn_field ConfigAssetUnitName
+    // smart_contracts/blockd_certificate/contract.py:29
+    // asset_name=String("BlockD Certificate"),
+    pushbytes "BlockD Certificate"
+    itxn_field ConfigAssetName
+    // smart_contracts/blockd_certificate/contract.py:27-28
+    // # Note: MBR for the box and the asset must be covered by the caller
+    // asset_mint = itxn.AssetConfig(
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/blockd_certificate/contract.py:27-35
+    // # Note: MBR for the box and the asset must be covered by the caller
+    // asset_mint = itxn.AssetConfig(
+    //     asset_name=String("BlockD Certificate"),
+    //     unit_name=String("BLKD"),
+    //     total=1,
+    //     decimals=0,
+    //     default_frozen=False,
+    //     url=ipfs_url,
+    // ).submit()
+    itxn_submit
+    itxn CreatedAssetID
+    // smart_contracts/blockd_certificate/contract.py:39-40
+    // # Map the scan_id to the created asset id
+    // self.certificates[scan_id] = created_asset_id
+    itob
+    swap
+    dig 1
+    box_put
+    // smart_contracts/blockd_certificate/contract.py:41
+    // self.total_certificates += 1
+    intc_0 // 0
+    bytec_0 // "total_certificates"
+    app_global_get_ex
+    assert // check self.total_certificates exists
+    intc_1 // 1
+    +
+    bytec_0 // "total_certificates"
+    swap
+    app_global_put
+    // smart_contracts/blockd_certificate/contract.py:14
+    // @arc4.abimethod
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.BlockdCertificate.get_certificate_asset[routing]() -> void:
+get_certificate_asset:
+    // smart_contracts/blockd_certificate/contract.py:45
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/blockd_certificate/contract.py:48
+    // assert scan_id in self.certificates, "Certificate not found"
+    bytec_3 // "certificates"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Certificate not found
+    // smart_contracts/blockd_certificate/contract.py:49
+    // return self.certificates[scan_id]
+    box_get
+    pop
+    btoi
+    // smart_contracts/blockd_certificate/contract.py:45
+    // @arc4.abimethod(readonly=True)
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.BlockdCertificate.get_total_certificates[routing]() -> void:
+get_total_certificates:
+    // smart_contracts/blockd_certificate/contract.py:54
+    // return self.total_certificates
+    intc_0 // 0
+    bytec_0 // "total_certificates"
+    app_global_get_ex
+    assert // check self.total_certificates exists
+    // smart_contracts/blockd_certificate/contract.py:51
+    // @arc4.abimethod(readonly=True)
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

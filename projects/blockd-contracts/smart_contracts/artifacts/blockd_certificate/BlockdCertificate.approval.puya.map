@@ -1,0 +1,1359 @@
+{
+  "version": 3,
+  "sources": [
+    "../../blockd_certificate/contract.py"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAIQ;AAA0B;AAA1B;AAEA;;;;;;;;;;;;;;;;AAAA;AACA;AAA2B;;AAA3B;AALR;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAOK;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAQuB;;AAAe;AAAA;AAAA;AAAA;AAAf;AAApB;AACO;;AAAA;AAAP;AACO;AAAA;AAAP;AACsB;AAAf;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAP;AAGa;;;;AAKM;;;AADN;;;AADH;;;AADI;;;;;;;;AADC;;;;;;;;;;;;;;;;;;;;;;AADF;;;;AAAA;;;AAAA;;;AAYb;AAAA;AAAA;;AAAA;AACA;AAAA;AAAA;AAAA;AAA2B;AAA3B;AAAA;AAAA;AAAA;AA3BH;AAAA;AAAA;AAAA;AAAA;AAAA;AA+BA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAGqB;AAAX;AAAA;AAAA;AAAA;AAAA;;AAAP;AACO;AAAA;AAAA;AAJV;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AASU;AAAA;AAAA;AAAA;AAHV;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "algopy.arc4.ARC4Contract.approval_program",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1 2"
+    },
+    "6": {
+      "op": "bytecblock \"total_certificates\" 0x151f7c75 \"issuer\" \"certificates\""
+    },
+    "52": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "54": {
+      "op": "bnz main_after_if_else@2",
+      "stack_out": []
+    },
+    "57": {
+      "op": "bytec_0 // \"total_certificates\"",
+      "defined_out": [
+        "\"total_certificates\""
+      ],
+      "stack_out": [
+        "\"total_certificates\""
+      ]
+    },
+    "58": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"total_certificates\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"total_certificates\"",
+        "0"
+      ]
+    },
+    "59": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "60": {
+      "op": "pushbytess \"version\" \"2.0.0\"",
+      "defined_out": [
+        "\"2.0.0\"",
+        "\"version\""
+      ],
+      "stack_out": [
+        "\"version\"",
+        "\"2.0.0\""
+      ]
+    },
+    "76": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "77": {
+      "op": "bytec_2 // \"issuer\"",
+      "defined_out": [
+        "\"issuer\""
+      ],
+      "stack_out": [
+        "\"issuer\""
+      ]
+    },
+    "78": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "\"issuer\"",
+        "reinterpret_Encoded(uint8[32])%0#0"
+      ],
+      "stack_out": [
+        "\"issuer\"",
+        "reinterpret_Encoded(uint8[32])%0#0"
+      ]
+    },
+    "80": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "81": {
+      "block": "main_after_if_else@2",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "83": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "84": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "85": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "87": {
+      "op": "bz main_create_NoOp@9",
+      "stack_out": []
+    },
+    "90": {
+      "op": "pushbytess 0x55addaf3 0x487f932c 0x887b66d8 // method \"issue_certificate(string,string)uint64\", method \"get_certificate_asset(string)uint64\", method \"get_total_certificates()uint64\"",
+      "defined_out": [
+        "Method(get_certificate_asset(string)uint64)",
+        "Method(get_total_certificates()uint64)",
+        "Method(issue_certificate(string,string)uint64)"
+      ],
+      "stack_out": [
+        "Method(issue_certificate(string,string)uint64)",
+        "Method(get_certificate_asset(string)uint64)",
+        "Method(get_total_certificates()uint64)"
+      ]
+    },
+    "107": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(get_certificate_asset(string)uint64)",
+        "Method(get_total_certificates()uint64)",
+        "Method(issue_certificate(string,string)uint64)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(issue_certificate(string,string)uint64)",
+        "Method(get_certificate_asset(string)uint64)",
+        "Method(get_total_certificates()uint64)",
+        "tmp%4#0"
+      ]
+    },
+    "110": {
+      "op": "match issue_certificate get_certificate_asset get_total_certificates",
+      "stack_out": []
+    },
+    "118": {
+      "op": "err"
+    },
+    "119": {
+      "block": "main_create_NoOp@9",
+      "stack_in": [],
+      "op": "pushbytes 0x4c5c61ba // method \"create()void\"",
+      "defined_out": [
+        "Method(create()void)"
+      ],
+      "stack_out": [
+        "Method(create()void)"
+      ]
+    },
+    "125": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ]
+    },
+    "128": {
+      "op": "match main_create_route@10",
+      "stack_out": []
+    },
+    "132": {
+      "op": "err"
+    },
+    "133": {
+      "block": "main_create_route@10",
+      "stack_in": [],
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "134": {
+      "op": "return",
+      "stack_out": []
+    },
+    "135": {
+      "subroutine": "contract.BlockdCertificate.issue_certificate[routing]",
+      "params": {},
+      "block": "issue_certificate",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "138": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "139": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "140": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "141": {
+      "op": "intc_2 // 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "142": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "143": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "145": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "146": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "147": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "148": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0"
+      ]
+    },
+    "151": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "scan_id#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0"
+      ]
+    },
+    "154": {
+      "op": "dup",
+      "defined_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "155": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "0"
+      ]
+    },
+    "156": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%1#0",
+        "scan_id#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "157": {
+      "op": "intc_2 // 2",
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "aggregate%array_length%1#0",
+        "2"
+      ]
+    },
+    "158": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "scan_id#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "add%1#0"
+      ]
+    },
+    "159": {
+      "op": "dig 1",
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "add%1#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "161": {
+      "op": "len",
+      "defined_out": [
+        "add%1#0",
+        "len%1#0",
+        "scan_id#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "add%1#0",
+        "len%1#0"
+      ]
+    },
+    "162": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "scan_id#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "163": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "scan_id#0",
+        "tmp%2#0"
+      ]
+    },
+    "164": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "ipfs_url#0",
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0"
+      ]
+    },
+    "167": {
+      "op": "txn Sender",
+      "defined_out": [
+        "ipfs_url#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "reinterpret_Encoded(uint8[32])%0#0"
+      ]
+    },
+    "169": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "0"
+      ]
+    },
+    "170": {
+      "op": "bytec_2 // \"issuer\"",
+      "defined_out": [
+        "\"issuer\"",
+        "0",
+        "ipfs_url#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "0",
+        "\"issuer\""
+      ]
+    },
+    "171": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "ipfs_url#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "172": {
+      "error": "check self.issuer exists",
+      "op": "assert // check self.issuer exists",
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "173": {
+      "op": "==",
+      "defined_out": [
+        "ipfs_url#0",
+        "scan_id#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "tmp%0#1"
+      ]
+    },
+    "174": {
+      "error": "Only issuer can issue certificates",
+      "op": "assert // Only issuer can issue certificates",
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0"
+      ]
+    },
+    "175": {
+      "op": "dig 1",
+      "defined_out": [
+        "ipfs_url#0",
+        "scan_id#0",
+        "scan_id#0 (copy)"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "scan_id#0 (copy)"
+      ]
+    },
+    "177": {
+      "op": "len",
+      "defined_out": [
+        "ipfs_url#0",
+        "scan_id#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "tmp%1#1"
+      ]
+    },
+    "178": {
+      "error": "scan_id required",
+      "op": "assert // scan_id required",
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0"
+      ]
+    },
+    "179": {
+      "op": "dup",
+      "defined_out": [
+        "ipfs_url#0",
+        "ipfs_url#0 (copy)",
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "ipfs_url#0 (copy)"
+      ]
+    },
+    "180": {
+      "op": "len",
+      "defined_out": [
+        "ipfs_url#0",
+        "scan_id#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "tmp%3#1"
+      ]
+    },
+    "181": {
+      "error": "ipfs_url required",
+      "op": "assert // ipfs_url required",
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0"
+      ]
+    },
+    "182": {
+      "op": "bytec_3 // \"certificates\"",
+      "defined_out": [
+        "\"certificates\"",
+        "ipfs_url#0",
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "ipfs_url#0",
+        "\"certificates\""
+      ]
+    },
+    "183": {
+      "op": "uncover 2",
+      "stack_out": [
+        "ipfs_url#0",
+        "\"certificates\"",
+        "scan_id#0"
+      ]
+    },
+    "185": {
+      "op": "concat",
+      "defined_out": [
+        "box_prefixed_key%0#0",
+        "ipfs_url#0"
+      ],
+      "stack_out": [
+        "ipfs_url#0",
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "186": {
+      "op": "dup",
+      "defined_out": [
+        "box_prefixed_key%0#0",
+        "box_prefixed_key%0#0 (copy)",
+        "ipfs_url#0"
+      ],
+      "stack_out": [
+        "ipfs_url#0",
+        "box_prefixed_key%0#0",
+        "box_prefixed_key%0#0 (copy)"
+      ]
+    },
+    "187": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "box_prefixed_key%0#0",
+        "ipfs_url#0",
+        "maybe_exists%1#0"
+      ],
+      "stack_out": [
+        "ipfs_url#0",
+        "box_prefixed_key%0#0",
+        "_%0#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "188": {
+      "op": "bury 1",
+      "stack_out": [
+        "ipfs_url#0",
+        "box_prefixed_key%0#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "190": {
+      "op": "!",
+      "defined_out": [
+        "box_prefixed_key%0#0",
+        "ipfs_url#0",
+        "tmp%5#1"
+      ],
+      "stack_out": [
+        "ipfs_url#0",
+        "box_prefixed_key%0#0",
+        "tmp%5#1"
+      ]
+    },
+    "191": {
+      "error": "Certificate already issued for scan",
+      "op": "assert // Certificate already issued for scan",
+      "stack_out": [
+        "ipfs_url#0",
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "192": {
+      "op": "itxn_begin"
+    },
+    "193": {
+      "op": "swap",
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "ipfs_url#0"
+      ]
+    },
+    "194": {
+      "op": "itxn_field ConfigAssetURL",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "196": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "0"
+      ]
+    },
+    "197": {
+      "op": "itxn_field ConfigAssetDefaultFrozen",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "199": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "0"
+      ]
+    },
+    "200": {
+      "op": "itxn_field ConfigAssetDecimals",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "202": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "box_prefixed_key%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "1"
+      ]
+    },
+    "203": {
+      "op": "itxn_field ConfigAssetTotal",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "205": {
+      "op": "pushbytes \"BLKD\"",
+      "defined_out": [
+        "\"BLKD\"",
+        "box_prefixed_key%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "\"BLKD\""
+      ]
+    },
+    "211": {
+      "op": "itxn_field ConfigAssetUnitName",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "213": {
+      "op": "pushbytes \"BlockD Certificate\"",
+      "defined_out": [
+        "\"BlockD Certificate\"",
+        "box_prefixed_key%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "\"BlockD Certificate\""
+      ]
+    },
+    "233": {
+      "op": "itxn_field ConfigAssetName",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "235": {
+      "op": "pushint 3 // acfg",
+      "defined_out": [
+        "acfg",
+        "box_prefixed_key%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "acfg"
+      ]
+    },
+    "237": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "239": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "0"
+      ]
+    },
+    "240": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "242": {
+      "op": "itxn_submit"
+    },
+    "243": {
+      "op": "itxn CreatedAssetID",
+      "defined_out": [
+        "asset_mint.CreatedAssetID#0",
+        "box_prefixed_key%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "asset_mint.CreatedAssetID#0"
+      ]
+    },
+    "245": {
+      "op": "itob",
+      "defined_out": [
+        "box_prefixed_key%0#0",
+        "encoded_value%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "encoded_value%0#0"
+      ]
+    },
+    "246": {
+      "op": "swap",
+      "stack_out": [
+        "encoded_value%0#0",
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "247": {
+      "op": "dig 1",
+      "defined_out": [
+        "box_prefixed_key%0#0",
+        "encoded_value%0#0",
+        "encoded_value%0#0 (copy)"
+      ],
+      "stack_out": [
+        "encoded_value%0#0",
+        "box_prefixed_key%0#0",
+        "encoded_value%0#0 (copy)"
+      ]
+    },
+    "249": {
+      "op": "box_put",
+      "stack_out": [
+        "encoded_value%0#0"
+      ]
+    },
+    "250": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "encoded_value%0#0",
+        "0"
+      ]
+    },
+    "251": {
+      "op": "bytec_0 // \"total_certificates\"",
+      "defined_out": [
+        "\"total_certificates\"",
+        "0",
+        "encoded_value%0#0"
+      ],
+      "stack_out": [
+        "encoded_value%0#0",
+        "0",
+        "\"total_certificates\""
+      ]
+    },
+    "252": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "encoded_value%0#0",
+        "maybe_exists%2#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "encoded_value%0#0",
+        "maybe_value%1#0",
+        "maybe_exists%2#0"
+      ]
+    },
+    "253": {
+      "error": "check self.total_certificates exists",
+      "op": "assert // check self.total_certificates exists",
+      "stack_out": [
+        "encoded_value%0#0",
+        "maybe_value%1#0"
+      ]
+    },
+    "254": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "encoded_value%0#0",
+        "maybe_value%1#0",
+        "1"
+      ]
+    },
+    "255": {
+      "op": "+",
+      "defined_out": [
+        "encoded_value%0#0",
+        "tmp%6#1"
+      ],
+      "stack_out": [
+        "encoded_value%0#0",
+        "tmp%6#1"
+      ]
+    },
+    "256": {
+      "op": "bytec_0 // \"total_certificates\"",
+      "stack_out": [
+        "encoded_value%0#0",
+        "tmp%6#1",
+        "\"total_certificates\""
+      ]
+    },
+    "257": {
+      "op": "swap",
+      "stack_out": [
+        "encoded_value%0#0",
+        "\"total_certificates\"",
+        "tmp%6#1"
+      ]
+    },
+    "258": {
+      "op": "app_global_put",
+      "stack_out": [
+        "encoded_value%0#0"
+      ]
+    },
+    "259": {
+      "op": "bytec_1 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "encoded_value%0#0"
+      ],
+      "stack_out": [
+        "encoded_value%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "260": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "encoded_value%0#0"
+      ]
+    },
+    "261": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "262": {
+      "op": "log",
+      "stack_out": []
+    },
+    "263": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "264": {
+      "op": "return",
+      "stack_out": []
+    },
+    "265": {
+      "subroutine": "contract.BlockdCertificate.get_certificate_asset[routing]",
+      "params": {},
+      "block": "get_certificate_asset",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "268": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "269": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "270": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "271": {
+      "op": "intc_2 // 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "272": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "273": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "275": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "276": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "277": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "278": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0"
+      ]
+    },
+    "281": {
+      "op": "bytec_3 // \"certificates\"",
+      "defined_out": [
+        "\"certificates\"",
+        "scan_id#0"
+      ],
+      "stack_out": [
+        "scan_id#0",
+        "\"certificates\""
+      ]
+    },
+    "282": {
+      "op": "swap",
+      "stack_out": [
+        "\"certificates\"",
+        "scan_id#0"
+      ]
+    },
+    "283": {
+      "op": "concat",
+      "defined_out": [
+        "box_prefixed_key%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "284": {
+      "op": "dup",
+      "defined_out": [
+        "box_prefixed_key%0#0",
+        "box_prefixed_key%0#0 (copy)"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "box_prefixed_key%0#0 (copy)"
+      ]
+    },
+    "285": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "box_prefixed_key%0#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "_%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "286": {
+      "op": "bury 1",
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "288": {
+      "error": "Certificate not found",
+      "op": "assert // Certificate not found",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "289": {
+      "op": "box_get",
+      "defined_out": [
+        "aggregate%box_get%0#0",
+        "aggregate%box_get%1#0"
+      ],
+      "stack_out": [
+        "aggregate%box_get%0#0",
+        "aggregate%box_get%1#0"
+      ]
+    },
+    "290": {
+      "op": "pop",
+      "stack_out": [
+        "aggregate%box_get%0#0"
+      ]
+    },
+    "291": {
+      "op": "btoi",
+      "defined_out": [
+        "maybe_value_converted%0#0"
+      ],
+      "stack_out": [
+        "maybe_value_converted%0#0"
+      ]
+    },
+    "292": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "293": {
+      "op": "bytec_1 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "294": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "295": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "296": {
+      "op": "log",
+      "stack_out": []
+    },
+    "297": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "298": {
+      "op": "return",
+      "stack_out": []
+    },
+    "299": {
+      "subroutine": "contract.BlockdCertificate.get_total_certificates[routing]",
+      "params": {},
+      "block": "get_total_certificates",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "300": {
+      "op": "bytec_0 // \"total_certificates\"",
+      "defined_out": [
+        "\"total_certificates\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"total_certificates\""
+      ]
+    },
+    "301": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "302": {
+      "error": "check self.total_certificates exists",
+      "op": "assert // check self.total_certificates exists",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "303": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "304": {
+      "op": "bytec_1 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "305": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "306": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "307": {
+      "op": "log",
+      "stack_out": []
+    },
+    "308": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "309": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

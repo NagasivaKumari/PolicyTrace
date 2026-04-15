@@ -1,0 +1,62 @@
+services:
+  # 1. THE BACKEND (API)
+  - type: web
+    name: blockd-api
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: projects/blockd-backend/Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false # You will paste your MongoDB Atlas URL in the dashboard
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: blockd-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORAND_NETWORK
+        value: testnet
+      - key: CORS_ORIGINS
+        value: "http://localhost:5173" # Update this to your frontend URL after first deploy
+      - key: MONGODB_DB_NAME
+        value: blockd
+
+  # 2. THE AI WORKER (Background Scans)
+  - type: worker
+    name: blockd-worker
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: projects/blockd-backend/Dockerfile
+    dockerCommand: celery -A app.tasks.scan_task worker --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: blockd-redis
+          property: connectionString
+      - key: ALGORAND_NETWORK
+        value: testnet
+
+  # 3. THE FRONTEND (UI)
+  - type: web
+    name: blockd-frontend
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: projects/blockd-frontend/Dockerfile
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: blockd-api
+          property: host
+      - key: VITE_ALGORAND_NETWORK
+        value: testnet
+
+  # 4. THE REDIS CACHE (Key-Value Store)
+  - type: keyvalue
+    name: blockd-redis
+    plan: free # Max 25mb but fine for simple task management
+    ipAllowList: [] # Restrict access to internal services only

@@ -1,0 +1,768 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 32 8
+    bytecblock 0x151f7c75 "total_audits" "manager" "audits" 0x0000000000000000 "profiles" "experts" 0x0000000000000001 0x003c "user_status" 0x0012
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/blockd_audit/contract.py:28
+    // self.total_audits = UInt64(0)
+    bytec_1 // "total_audits"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/blockd_audit/contract.py:30
+    // self.manager = arc4.Address(Global.creator_address)
+    bytec_2 // "manager"
+    global CreatorAddress
+    app_global_put
+    // smart_contracts/blockd_audit/contract.py:34
+    // self.version = String("6.0.0")
+    pushbytess "version" "6.0.0"
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/blockd_audit/contract.py:26
+    // class BlockdAudit(ARC4Contract):
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@16
+    pushbytess 0x95916209 0x75301203 0x56665481 0xfb57408a 0x175ba9df 0x6c063ddb 0xbf222263 0xf31647f2 0xe1d6e56b 0x54a6f0f5 // method "set_expert(address,uint64)void", method "is_expert(address)uint64", method "vouch_for_audit(string)void", method "anchor_audit(string,address,string,uint64,string)void", method "set_user_status(address,uint64)void", method "get_user_status(address)uint64", method "set_profile(string)void", method "get_profile(address)(string,uint64,uint64)", method "get_total_audits()uint64", method "get_audit(string)(address,string,uint64,string,uint64,uint64)"
+    txna ApplicationArgs 0
+    match set_expert is_expert vouch_for_audit anchor_audit set_user_status get_user_status set_profile get_profile get_total_audits get_audit
+    err
+
+main_create_NoOp@16:
+    // smart_contracts/blockd_audit/contract.py:26
+    // class BlockdAudit(ARC4Contract):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@17
+    err
+
+main_create_route@17:
+    // smart_contracts/blockd_audit/contract.py:36
+    // @arc4.abimethod(allow_actions=["NoOp"], create="require")
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.set_expert[routing]() -> void:
+set_expert:
+    // smart_contracts/blockd_audit/contract.py:40
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/blockd_audit/contract.py:43
+    // assert arc4.Address(Txn.sender) == self.manager, "Only manager can assign experts"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "manager"
+    app_global_get_ex
+    assert // check self.manager exists
+    ==
+    assert // Only manager can assign experts
+    // smart_contracts/blockd_audit/contract.py:44
+    // self.experts[expert] = is_expert
+    bytec 6 // "experts"
+    uncover 2
+    concat
+    swap
+    box_put
+    // smart_contracts/blockd_audit/contract.py:40
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.is_expert[routing]() -> void:
+is_expert:
+    // smart_contracts/blockd_audit/contract.py:46
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub contract.BlockdAudit.is_expert
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.vouch_for_audit[routing]() -> void:
+vouch_for_audit:
+    // smart_contracts/blockd_audit/contract.py:53
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/blockd_audit/contract.py:56
+    // assert self.is_expert(arc4.Address(Txn.sender)) == arc4.UInt64(1), "Only verified experts can vouch"
+    txn Sender
+    callsub contract.BlockdAudit.is_expert
+    bytec 7 // 0x0000000000000001
+    b==
+    assert // Only verified experts can vouch
+    // smart_contracts/blockd_audit/contract.py:57
+    // assert scan_id in self.audits, "Audit not found"
+    bytec_3 // "audits"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Audit not found
+    // smart_contracts/blockd_audit/contract.py:59
+    // current = self.audits[scan_id].copy()
+    dup
+    box_get
+    pop
+    swap
+    // smart_contracts/blockd_audit/contract.py:59-60
+    // current = self.audits[scan_id].copy()
+    // new_vouch_count = current.vouch_count.native + UInt64(1)
+    dup
+    pushint 52
+    intc_3 // 8
+    box_extract
+    // smart_contracts/blockd_audit/contract.py:60
+    // new_vouch_count = current.vouch_count.native + UInt64(1)
+    btoi
+    intc_1 // 1
+    +
+    // smart_contracts/blockd_audit/contract.py:62
+    // owner=current.owner,
+    dig 1
+    intc_0 // 0
+    intc_2 // 32
+    box_extract
+    // smart_contracts/blockd_audit/contract.py:63
+    // url_hash=current.url_hash,
+    dig 3
+    intc_2 // 32
+    extract_uint16
+    dig 4
+    pushint 42
+    extract_uint16
+    dig 5
+    uncover 2
+    dig 2
+    substring3
+    // smart_contracts/blockd_audit/contract.py:64
+    // risk_score=current.risk_score,
+    dig 4
+    pushint 34
+    intc_3 // 8
+    box_extract
+    // smart_contracts/blockd_audit/contract.py:65
+    // ipfs_cid=current.ipfs_cid,
+    dig 6
+    len
+    uncover 7
+    uncover 4
+    uncover 2
+    substring3
+    // smart_contracts/blockd_audit/contract.py:66
+    // timestamp=current.timestamp,
+    dig 5
+    pushint 44
+    intc_3 // 8
+    box_extract
+    // smart_contracts/blockd_audit/contract.py:67
+    // vouch_count=arc4.UInt64(new_vouch_count)
+    uncover 5
+    itob
+    // smart_contracts/blockd_audit/contract.py:61-68
+    // self.audits[scan_id] = AuditRecord(
+    //     owner=current.owner,
+    //     url_hash=current.url_hash,
+    //     risk_score=current.risk_score,
+    //     ipfs_cid=current.ipfs_cid,
+    //     timestamp=current.timestamp,
+    //     vouch_count=arc4.UInt64(new_vouch_count)
+    // )
+    uncover 5
+    bytec 8 // 0x003c
+    concat
+    dig 5
+    len
+    pushint 60
+    +
+    swap
+    uncover 5
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    dig 1
+    box_del
+    pop
+    box_put
+    // smart_contracts/blockd_audit/contract.py:53
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.anchor_audit[routing]() -> void:
+anchor_audit:
+    // smart_contracts/blockd_audit/contract.py:70
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    cover 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    dup
+    cover 4
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    dup
+    cover 3
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 5
+    dup
+    cover 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/blockd_audit/contract.py:80-81
+    // # Integrity: the caller must be the claimed owner (prevents forging audits for others)
+    // assert owner == arc4.Address(Txn.sender), "Owner must match sender"
+    dup
+    txn Sender
+    ==
+    assert // Owner must match sender
+    // smart_contracts/blockd_audit/contract.py:82-83
+    // # Prevent overwriting an existing audit
+    // assert scan_id not in self.audits, "Audit already exists"
+    bytec_3 // "audits"
+    uncover 2
+    concat
+    dup
+    cover 2
+    box_len
+    bury 1
+    !
+    assert // Audit already exists
+    // smart_contracts/blockd_audit/contract.py:85-86
+    // # Cost check: If user is working (status 1), we enforce 1 ALGO payment to contract
+    // user_status = self.get_user_status(owner)
+    callsub contract.BlockdAudit.get_user_status
+    // smart_contracts/blockd_audit/contract.py:87
+    // if user_status == arc4.UInt64(1):
+    bytec 7 // 0x0000000000000001
+    b==
+    bz anchor_audit_after_if_else@3
+    // smart_contracts/blockd_audit/contract.py:88-90
+    // # Enforce 1 ALGO payment in the same group
+    // # [Txn 0: Payment, Txn 1: App Call]
+    // assert Global.group_size == UInt64(2), "Working users must pay 1 ALGO fee"
+    global GroupSize
+    pushint 2
+    ==
+    assert // Working users must pay 1 ALGO fee
+    // smart_contracts/blockd_audit/contract.py:91
+    // assert Txn.group_index == UInt64(1), "App call must be second in group"
+    txn GroupIndex
+    intc_1 // 1
+    ==
+    assert // App call must be second in group
+    // smart_contracts/blockd_audit/contract.py:92
+    // fee_txn = gtxn.PaymentTransaction(0)
+    intc_0 // 0
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    intc_0 // 0
+    // smart_contracts/blockd_audit/contract.py:93
+    // assert fee_txn.sender == Txn.sender, "Fee must be paid by sender"
+    gtxns Sender
+    txn Sender
+    ==
+    assert // Fee must be paid by sender
+    // smart_contracts/blockd_audit/contract.py:92
+    // fee_txn = gtxn.PaymentTransaction(0)
+    intc_0 // 0
+    // smart_contracts/blockd_audit/contract.py:94
+    // assert fee_txn.receiver == Global.current_application_address, "Fee must go to app"
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // Fee must go to app
+    // smart_contracts/blockd_audit/contract.py:92
+    // fee_txn = gtxn.PaymentTransaction(0)
+    intc_0 // 0
+    // smart_contracts/blockd_audit/contract.py:95
+    // assert fee_txn.amount >= UInt64(1_000_000), "Fee must be at least 1 ALGO"
+    gtxns Amount
+    pushint 1000000
+    >=
+    assert // Fee must be at least 1 ALGO
+
+anchor_audit_after_if_else@3:
+    // smart_contracts/blockd_audit/contract.py:102
+    // timestamp=arc4.UInt64(Global.latest_timestamp),
+    global LatestTimestamp
+    itob
+    // smart_contracts/blockd_audit/contract.py:97-104
+    // self.audits[scan_id] = AuditRecord(
+    //     owner=owner,
+    //     url_hash=url_hash,
+    //     risk_score=risk_score,
+    //     ipfs_cid=ipfs_cid,
+    //     timestamp=arc4.UInt64(Global.latest_timestamp),
+    //     vouch_count=arc4.UInt64(0)
+    // )
+    dig 6
+    bytec 8 // 0x003c
+    concat
+    pushint 60
+    dig 6
+    +
+    swap
+    dig 5
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    // smart_contracts/blockd_audit/contract.py:103
+    // vouch_count=arc4.UInt64(0)
+    bytec 4 // 0x0000000000000000
+    // smart_contracts/blockd_audit/contract.py:97-104
+    // self.audits[scan_id] = AuditRecord(
+    //     owner=owner,
+    //     url_hash=url_hash,
+    //     risk_score=risk_score,
+    //     ipfs_cid=ipfs_cid,
+    //     timestamp=arc4.UInt64(Global.latest_timestamp),
+    //     vouch_count=arc4.UInt64(0)
+    // )
+    concat
+    dig 5
+    concat
+    dig 2
+    concat
+    dig 1
+    dup
+    box_del
+    pop
+    swap
+    box_put
+    // smart_contracts/blockd_audit/contract.py:105
+    // self.total_audits += 1
+    intc_0 // 0
+    bytec_1 // "total_audits"
+    app_global_get_ex
+    assert // check self.total_audits exists
+    intc_1 // 1
+    +
+    bytec_1 // "total_audits"
+    swap
+    app_global_put
+    // smart_contracts/blockd_audit/contract.py:70
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.set_user_status[routing]() -> void:
+set_user_status:
+    // smart_contracts/blockd_audit/contract.py:107
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/blockd_audit/contract.py:110
+    // assert arc4.Address(Txn.sender) == self.manager, "Only manager can update user status"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "manager"
+    app_global_get_ex
+    assert // check self.manager exists
+    ==
+    assert // Only manager can update user status
+    // smart_contracts/blockd_audit/contract.py:111
+    // self.user_status[user] = status
+    bytec 9 // "user_status"
+    dig 2
+    concat
+    swap
+    box_put
+    // smart_contracts/blockd_audit/contract.py:113-114
+    // # Also update the profile if it exists
+    // if user in self.profiles:
+    bytec 5 // "profiles"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    bz set_user_status_after_if_else@3
+    // smart_contracts/blockd_audit/contract.py:115
+    // current = self.profiles[user].copy()
+    dupn 2
+    box_get
+    assert // check self.profiles entry exists
+    // smart_contracts/blockd_audit/contract.py:117
+    // username=current.username,
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    len
+    substring3
+    // smart_contracts/blockd_audit/contract.py:119
+    // joined_at=current.joined_at
+    dig 1
+    pushint 10
+    intc_3 // 8
+    box_extract
+    // smart_contracts/blockd_audit/contract.py:116-120
+    // self.profiles[user] = UserProfile(
+    //     username=current.username,
+    //     is_working=status,
+    //     joined_at=current.joined_at
+    // )
+    bytec 10 // 0x0012
+    dig 5
+    concat
+    swap
+    concat
+    swap
+    concat
+    dig 1
+    box_del
+    pop
+    box_put
+
+set_user_status_after_if_else@3:
+    // smart_contracts/blockd_audit/contract.py:107
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.get_user_status[routing]() -> void:
+get_user_status:
+    // smart_contracts/blockd_audit/contract.py:122
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub contract.BlockdAudit.get_user_status
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.set_profile[routing]() -> void:
+set_profile:
+    // smart_contracts/blockd_audit/contract.py:129
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/blockd_audit/contract.py:132
+    // sender = arc4.Address(Txn.sender)
+    txn Sender
+    // smart_contracts/blockd_audit/contract.py:133
+    // status = self.get_user_status(sender)
+    dup
+    callsub contract.BlockdAudit.get_user_status
+    swap
+    // smart_contracts/blockd_audit/contract.py:135
+    // joined = arc4.UInt64(Global.latest_timestamp)
+    global LatestTimestamp
+    itob
+    swap
+    // smart_contracts/blockd_audit/contract.py:136
+    // if sender in self.profiles:
+    bytec 5 // "profiles"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    bz set_profile_after_if_else@3
+    // smart_contracts/blockd_audit/contract.py:137
+    // joined = self.profiles[sender].joined_at
+    dup
+    pushint 10
+    intc_3 // 8
+    box_extract
+    bury 2
+
+set_profile_after_if_else@3:
+    // smart_contracts/blockd_audit/contract.py:139-143
+    // self.profiles[sender] = UserProfile(
+    //     username=username,
+    //     is_working=status,
+    //     joined_at=joined
+    // )
+    bytec 10 // 0x0012
+    dig 3
+    concat
+    dig 2
+    concat
+    dig 4
+    concat
+    dig 1
+    dup
+    box_del
+    pop
+    swap
+    box_put
+    // smart_contracts/blockd_audit/contract.py:129
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.get_profile[routing]() -> void:
+get_profile:
+    // smart_contracts/blockd_audit/contract.py:145
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/blockd_audit/contract.py:148
+    // assert user in self.profiles, "Profile not found"
+    bytec 5 // "profiles"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Profile not found
+    // smart_contracts/blockd_audit/contract.py:149
+    // return self.profiles[user]
+    box_get
+    pop
+    // smart_contracts/blockd_audit/contract.py:145
+    // @arc4.abimethod(readonly=True)
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.get_total_audits[routing]() -> void:
+get_total_audits:
+    // smart_contracts/blockd_audit/contract.py:154
+    // return self.total_audits
+    intc_0 // 0
+    bytec_1 // "total_audits"
+    app_global_get_ex
+    assert // check self.total_audits exists
+    // smart_contracts/blockd_audit/contract.py:151
+    // @arc4.abimethod(readonly=True)
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.get_audit[routing]() -> void:
+get_audit:
+    // smart_contracts/blockd_audit/contract.py:156
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/blockd_audit/contract.py:159
+    // assert scan_id in self.audits, "Audit not found"
+    bytec_3 // "audits"
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Audit not found
+    // smart_contracts/blockd_audit/contract.py:160
+    // return self.audits[scan_id]
+    box_get
+    pop
+    // smart_contracts/blockd_audit/contract.py:156
+    // @arc4.abimethod(readonly=True)
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// contract.BlockdAudit.is_expert(expert: bytes) -> bytes:
+contract.BlockdAudit.is_expert:
+    // smart_contracts/blockd_audit/contract.py:46-47
+    // @arc4.abimethod(readonly=True)
+    // def is_expert(self, expert: arc4.Address) -> arc4.UInt64:
+    proto 1 1
+    // smart_contracts/blockd_audit/contract.py:49
+    // if expert in self.experts:
+    bytec 6 // "experts"
+    frame_dig -1
+    concat
+    dup
+    box_len
+    bury 1
+    bz contract.BlockdAudit.is_expert_after_if_else@2
+    // smart_contracts/blockd_audit/contract.py:50
+    // return self.experts[expert]
+    frame_dig 0
+    box_get
+    assert // check self.experts entry exists
+    swap
+    retsub
+
+contract.BlockdAudit.is_expert_after_if_else@2:
+    // smart_contracts/blockd_audit/contract.py:51
+    // return arc4.UInt64(0)
+    bytec 4 // 0x0000000000000000
+    swap
+    retsub
+
+
+// contract.BlockdAudit.get_user_status(user: bytes) -> bytes:
+contract.BlockdAudit.get_user_status:
+    // smart_contracts/blockd_audit/contract.py:122-123
+    // @arc4.abimethod(readonly=True)
+    // def get_user_status(self, user: arc4.Address) -> arc4.UInt64:
+    proto 1 1
+    // smart_contracts/blockd_audit/contract.py:125
+    // if user in self.user_status:
+    bytec 9 // "user_status"
+    frame_dig -1
+    concat
+    dup
+    box_len
+    bury 1
+    bz contract.BlockdAudit.get_user_status_after_if_else@2
+    // smart_contracts/blockd_audit/contract.py:126
+    // return self.user_status[user]
+    frame_dig 0
+    box_get
+    assert // check self.user_status entry exists
+    swap
+    retsub
+
+contract.BlockdAudit.get_user_status_after_if_else@2:
+    // smart_contracts/blockd_audit/contract.py:127
+    // return arc4.UInt64(0) # Default to Job-seeker/Free
+    bytec 4 // 0x0000000000000000
+    swap
+    retsub

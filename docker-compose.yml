@@ -1,0 +1,54 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: 
+      context: .
+      dockerfile: projects/blockd-backend/Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-blockd}
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORAND_NETWORK: ${ALGORAND_NETWORK:-testnet}
+      ALGORAND_NODE: ${ALGORAND_NODE:-https://testnet-api.algonode.cloud}
+      ALGORAND_INDEXER: ${ALGORAND_INDEXER:-https://testnet-idx.algonode.cloud}
+      # Do not use "*" with credentials; override via CORS_ORIGINS env when deploying
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000}
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  celery-worker:
+    build: 
+      context: .
+      dockerfile: projects/blockd-backend/Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-blockd}
+      REDIS_URL: redis://redis:6379/0
+      ALGORAND_NODE: ${ALGORAND_NODE:-https://testnet-api.algonode.cloud}
+    depends_on:
+      - backend
+      - redis
+    command: celery -A app.tasks.scan_task worker --loglevel=info
+
+  frontend:
+    build:
+      context: .
+      dockerfile: projects/blockd-frontend/Dockerfile
+    restart: always
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+      VITE_ALGORAND_NETWORK: ${VITE_ALGORAND_NETWORK:-testnet}
+      VITE_ALGORAND_NODE: ${VITE_ALGORAND_NODE:-https://testnet-api.algonode.cloud}
