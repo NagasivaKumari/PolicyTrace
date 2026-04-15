@@ -16,6 +16,5 @@ transformers==4.37.0
 torch==2.2.0
 httpx==0.26.0
 python-dotenv==1.0.0
-algorand-python>=1.0.0
 algokit-utils>=2.3.0
 email-validator>=2.0.0
