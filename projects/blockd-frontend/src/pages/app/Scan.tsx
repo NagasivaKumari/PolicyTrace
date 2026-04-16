@@ -103,14 +103,9 @@ export const Scan = () => {
 
   // Auto-prompt when metadata is ready
   useEffect(() => {
-    if (scanJob?.current_step === 5 && scanJob.metadata && !isAnchoring) {
-      toast.success('AI Audit Complete! Ready for Blockchain Signature.', {
-        action: {
-          label: 'Anchor Now',
-          onClick: () => handleAnchor()
-        }
-      });
-    }
+    // Removed automatic anchor prompt on open — anchoring should only occur
+    // when the user explicitly clicks the anchor button. This avoids
+    // immediately requesting a wallet transaction when the user views an audit.
   }, [scanJob?.current_step, scanJob?.metadata]);
 
   const handleStartScan = async (e?: React.FormEvent, isSimple: boolean = false) => {

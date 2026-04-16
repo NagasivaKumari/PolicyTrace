@@ -170,6 +170,7 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
                     "audit_hash": audit_hash,
                     "wallet_address": wallet_address,
                     "status": "complete",
+                    "anchoring_pending": True,
                     "tx_id": None,
                     "blockchain": {"tx_id": None, "status": "pending"},
                     "metadata": handoff_metadata,
@@ -186,6 +187,7 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
                             "status": "complete",
                             "current_step": 5,
                             "status_message": "CRITICAL: No privacy policy found. Ready to anchor violation.",
+                            "anchoring_pending": True,
                             "metadata": handoff_metadata,
                             "result": report_content,
                             "updated_at": datetime.utcnow()
@@ -288,6 +290,7 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
                     "wallet_address": wallet_address,
                     "tx_id": None,
                     "status": "complete",
+                    "anchoring_pending": True,
                     "blockchain": {
                         "tx_id": None,
                         "status": "pending"

@@ -31,7 +31,8 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
     # When false, do NOT synthesize fallback high-risk reports when no policy is found.
     # Set ALLOW_FALLBACK=false in production to require real extracted policy content.
-    ALLOW_FALLBACK: bool = True
+    # Default set to False to enforce real extraction unless explicitly enabled.
+    ALLOW_FALLBACK: bool = False
     # When true, ensure MongoDB indexes exist on startup.
     AUTO_CREATE_TABLES: bool = True
     TRUST_PROXY_HEADERS: bool = False

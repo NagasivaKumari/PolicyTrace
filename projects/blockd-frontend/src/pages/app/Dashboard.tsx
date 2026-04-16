@@ -208,11 +208,20 @@ export const Dashboard = () => {
                           <Badge variant="success" size="sm" icon={ShieldCheck} className="bg-green-500/10 text-green-500 border-none px-3 font-black">VALIDATED</Badge>
                         </td>
                         <td className="py-5 text-right">
-                          <Link to={`/scan/${scan.id}`}>
-                            <Button variant="outline" size="sm" className="h-8 px-4 text-[10px] font-black uppercase tracking-widest border-white/10 hover:border-purple-500 hover:text-purple-400">
-                                Open Audit
-                            </Button>
-                          </Link>
+                          <div className="flex items-center justify-end gap-2">
+                            <Link to={`/scan/${scan.id}`}>
+                              <Button variant="outline" size="sm" className="h-8 px-4 text-[10px] font-black uppercase tracking-widest border-white/10 hover:border-purple-500 hover:text-purple-400">
+                                  Open Audit
+                              </Button>
+                            </Link>
+                            {((scan.status === 'complete') || scan.anchoring_pending) && !(scan.blockchain && scan.blockchain.tx_id) && (
+                              <Link to={`/scan/${scan.id}`}>
+                                <Button variant="purple" size="sm" className="h-8 px-3 text-[10px] font-black uppercase tracking-widest">
+                                  Resume Anchoring
+                                </Button>
+                              </Link>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}

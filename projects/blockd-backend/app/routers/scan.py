@@ -216,6 +216,7 @@ async def verify_anchor(
                 "blockchain.status": "confirmed",
                 "tx_id": tx_id,
                 "status": "anchored",
+                "anchoring_pending": False,
                 "updated_at": datetime.utcnow()
             }}
         )
@@ -223,6 +224,23 @@ async def verify_anchor(
             raise HTTPException(status_code=404, detail="Scan record not found or unauthorized")
 
     return {"status": "confirmed", "tx_id": tx_id}
+
+
+@router.get("/{scan_id}/anchoring")
+async def get_anchoring_state(scan_id: str, current_user=Depends(get_current_user)):
+    """Lightweight endpoint returning anchoring readiness/state for a scan.
+
+    Returns `status`, `anchoring_pending`, `metadata`, and `blockchain` fields.
+    """
+    db = get_db()
+    if db is None:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+
+    doc = db.scans.find_one({"scan_id": scan_id, "user.wallet": current_user.wallet_address}, {"_id": 0, "metadata": 1, "blockchain": 1, "status": 1, "anchoring_pending": 1})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Scan not found")
+
+    return doc
 
 
 @router.delete("/{scan_id}")
