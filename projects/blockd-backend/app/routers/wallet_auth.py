@@ -15,11 +15,28 @@ from ..utils.validators import is_valid_algorand_address
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-_redis = redis.from_url(
-    settings.REDIS_URL or "redis://127.0.0.1:6379/0",
-    decode_responses=True,
-    socket_connect_timeout=2,
-)
+# Safe Redis init: avoid crashing if REDIS_URL is missing or malformed
+_redis = None
+try:
+    _url = (settings.REDIS_URL or "redis://127.0.0.1:6379/0")
+    if _url and (_url.startswith("redis://") or _url.startswith("rediss://") or _url.startswith("unix://")):
+        try:
+            _client = redis.from_url(_url, decode_responses=True, socket_connect_timeout=2)
+            try:
+                _client.ping()
+                _redis = _client
+            except Exception:
+                # keep client even if ping fails; operations will catch errors
+                _redis = _client
+        except Exception as e:
+            logger.warning("Redis.from_url failed at init: %s", e)
+            _redis = None
+    else:
+        logger.warning("REDIS_URL missing or invalid scheme; skipping Redis init")
+        _redis = None
+except Exception as e:
+    logger.warning("Redis init error: %s", e)
+    _redis = None
 
 def _nonce_key(addr: str) -> str:
     return f"blockd:authnonce:{addr}"
@@ -44,6 +61,9 @@ async def get_auth_nonce(data: NonceRequest):
         raise HTTPException(status_code=400, detail="Invalid Algorand address")
     
     nonce = secrets.token_urlsafe(16)
+    if _redis is None:
+        logger.warning("Redis not configured for nonce storage")
+        raise HTTPException(status_code=503, detail="Auth service temporarily unavailable")
     try:
         # Multi-instance safe nonce store with TTL
         _redis.setex(_nonce_key(data.wallet_address), settings.OTP_EXPIRE_SECONDS, nonce)
@@ -64,6 +84,9 @@ async def wallet_login(data: WalletLoginRequest):
         raise HTTPException(status_code=400, detail="Invalid Algorand address")
     
     # 2. Verify nonce exists for this wallet (Redis TTL enforced)
+    if _redis is None:
+        logger.warning("Redis not configured for nonce read")
+        raise HTTPException(status_code=503, detail="Auth service temporarily unavailable")
     try:
         stored = _redis.get(_nonce_key(data.wallet_address))
     except Exception as e:
