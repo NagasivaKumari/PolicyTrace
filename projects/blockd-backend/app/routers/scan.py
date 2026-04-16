@@ -364,15 +364,29 @@ async def get_scan(
     """
     # 1. Check Redis for active progress (Scraping/Audit phase)
     # Note: Redis status is temporary. We verify identity in Step 2.
-    progress_raw = redis_client.get(f"blockd:scan:{scan_id}")
+    progress_raw = None
+    if redis_client:
+        try:
+            progress_raw = redis_client.get(f"blockd:scan:{scan_id}")
+        except Exception as e:
+            # Don't allow Redis errors to bubble and break the request/CORS handling
+            print(f"Warning: Redis GET failed for scan {scan_id}: {e}")
+            progress_raw = None
+
     if progress_raw:
-        data = json.loads(progress_raw)
-        # Optional: Add identity check if needed for in-progress scans
-        if isinstance(data, dict) and isinstance(data.get("result"), dict):
-            merged = {**data, **data["result"]}
-            merged.pop("result", None)
-            return merged
-        return data
+        try:
+            data = json.loads(progress_raw)
+        except Exception:
+            # If Redis returned malformed data, ignore and fallback to DB
+            data = None
+
+        if data:
+            # Optional: Add identity check if needed for in-progress scans
+            if isinstance(data, dict) and isinstance(data.get("result"), dict):
+                merged = {**data, **data["result"]}
+                merged.pop("result", None)
+                return merged
+            return data
 
     # 2. Check MongoDB for persistent/complete state
     db = get_db()

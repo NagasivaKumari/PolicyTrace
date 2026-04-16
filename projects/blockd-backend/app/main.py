@@ -76,3 +76,16 @@ async def health():
         health_status["status"] = "degraded"
 
     return health_status
+
+
+@app.get("/debug/config")
+async def debug_config():
+    """
+    Debug endpoint to inspect current CORS and Redis settings at runtime.
+    Deploy this temporarily to verify Render env vars without digging into the infra.
+    """
+    return {
+        "cors_origins_list": settings.cors_origins_list,
+        "cors_origins_env": settings.CORS_ORIGINS,
+        "redis_url": settings.REDIS_URL,
+    }

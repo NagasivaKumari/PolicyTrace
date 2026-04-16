@@ -94,7 +94,6 @@ async def smart_scrape(url: str):
 async def smart_scrape_with_source(url: str) -> tuple[str, str]:
     """Return (policy_text, source_url) for traceability."""
     domain = urlparse(url).netloc.replace("www.", "")
-
     tasks = [
         find_policy_with_serper(domain),
         extract_with_firecrawl(url)
@@ -102,6 +101,20 @@ async def smart_scrape_with_source(url: str) -> tuple[str, str]:
 
     results = await asyncio.gather(*tasks)
     policy_url, direct_content = results
+
+    # Diagnostic logging to help deployed environments surface missing API keys
+    try:
+        logger.info(
+            "Nitro Debug: domain=%s policy_url=%s policy_url_len=%d direct_len=%d serper_key=%s firecrawl_key=%s",
+            domain,
+            str(policy_url),
+            len(str(policy_url)) if policy_url else 0,
+            len(direct_content) if direct_content else 0,
+            bool(settings.SERPER_API_KEY),
+            bool(settings.FIRECRAWL_API_KEY),
+        )
+    except Exception:
+        pass
 
     if policy_url and policy_url != url:
         logger.info(f"Nitro: Found deep policy link: {policy_url}. Extracting...")
