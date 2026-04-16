@@ -3,7 +3,6 @@ from collections import defaultdict, deque
 from threading import Lock
 
 from fastapi import HTTPException, Request, status
-import redis
 
 from ..config import settings
 
@@ -30,6 +29,9 @@ def _get_redis_client():
     if not settings.RATE_LIMIT_USE_REDIS:
         return None
     try:
+        # Import redis lazily to avoid hard dependency when Redis is removed
+        import importlib
+        redis = importlib.import_module("redis")
         client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True, socket_connect_timeout=1)
         client.ping()
         _redis_client = client

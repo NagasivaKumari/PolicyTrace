@@ -2,7 +2,6 @@ import asyncio
 import hashlib
 import logging
 import json
-import redis
 from datetime import datetime
 from ..config import settings
 from ..services.db import get_db
@@ -10,42 +9,20 @@ from ..services.scraper import extract_privacy_policy
 from ..services.scanner import analyze_policy
 from ..services.ipfs_service import upload_report, upload_text
 
-db = get_db()
 
 logger = logging.getLogger(__name__)
 
-# Initialize Redis client for status tracking (fail-safe)
-redis_client = None
-try:
-    url = (settings.REDIS_URL or "redis://127.0.0.1:6379/0")
-    if url and (url.startswith("redis://") or url.startswith("rediss://") or url.startswith("unix://")):
-        try:
-            client = redis.from_url(url, socket_connect_timeout=2)
-            # test connection non-fatally
-            try:
-                client.ping()
-                redis_client = client
-            except Exception:
-                # connection may be transient; keep client so calls may still work and will be caught
-                redis_client = client
-        except Exception as e:
-            logging.getLogger(__name__).warning(f"Redis.from_url failed at init: {e}")
-            redis_client = None
-    else:
-        logging.getLogger(__name__).warning("Redis URL missing or invalid scheme; skipping Redis init")
-        redis_client = None
-except Exception as e:
-    logging.getLogger(__name__).warning(f"Redis init error: {e}")
-    redis_client = None
+# Redis removed: use MongoDB for status/progress persistence
+db = get_db()
 
 def update_status(scan_id, step, message, status="scanning", metadata=None, result=None):
-    """Update intermediate progress in Redis for live UI updates."""
+    """Persist intermediate progress to MongoDB `scans` collection."""
     status_data = {
         "id": scan_id,
         "status": status,
         "current_step": step,
         "status_message": message,
-        "updated_at": datetime.utcnow().isoformat()
+        "updated_at": datetime.utcnow()
     }
     if metadata:
         status_data["metadata"] = metadata
@@ -53,9 +30,17 @@ def update_status(scan_id, step, message, status="scanning", metadata=None, resu
         status_data["result"] = result
 
     try:
-        redis_client.setex(f"blockd:scan:{scan_id}", 3600, json.dumps(status_data))
+        db = get_db()
+        if db is None:
+            logger.warning("No DB available to update status for %s", scan_id)
+            return
+        db.scans.update_one(
+            {"scan_id": scan_id},
+            {"$set": status_data, "$setOnInsert": {"scan_id": scan_id, "created_at": datetime.utcnow()}},
+            upsert=True,
+        )
     except Exception as e:
-        logger.warning(f"Failed to update redis status for {scan_id}: {e}")
+        logger.warning(f"Failed to persist status to DB for {scan_id}: {e}")
 
 async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email: str = "", is_simple: bool = False or ""):
     """
@@ -100,7 +85,15 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
 
         # NEW: High-Risk Fallback for missing policies
         if not policy_text or len(policy_text) < 200:
-            logger.warning("No policy discovered for %s. Marking as HIGH RISK.", url)
+            logger.warning("No policy discovered for %s.", url)
+
+            # If fallbacks are disabled, mark as error and stop (require real source data)
+            if not getattr(settings, 'ALLOW_FALLBACK', True):
+                logger.error("Fallbacks disabled via ALLOW_FALLBACK; aborting scan %s.", scan_id)
+                update_status(scan_id, 0, "Error: No policy discovered and fallbacks are disabled.", status="error")
+                return
+
+            logger.warning("Marking as HIGH RISK fallback for %s.", url)
 
             # Create a minimal report and upload to IPFS so anchoring has a real CID/HASH
             report_content = {
@@ -152,6 +145,7 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
             }
 
             if db is not None:
+                # Persist final scan with status 'complete' so UI can read results
                 db.scans.insert_one({
                     "id": scan_id,
                     "scan_id": scan_id,
@@ -175,7 +169,7 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
                     "audit_cid": audit_cid,
                     "audit_hash": audit_hash,
                     "wallet_address": wallet_address,
-                    "status": "scanned",
+                    "status": "complete",
                     "tx_id": None,
                     "blockchain": {"tx_id": None, "status": "pending"},
                     "metadata": handoff_metadata,
@@ -183,20 +177,23 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
                 })
 
             update_status(scan_id, 2, "Compliance Breach: No policy discovered. Finalizing report...", status="complete")
-            
-            redis_client.setex(
-                f"blockd:scan:{scan_id}",
-                3600,
-                json.dumps({
-                    "id": scan_id,
-                    "status": "complete",
-                    "current_step": 5,
-                    "status_message": "CRITICAL: No privacy policy found. Ready to anchor violation.",
-                    "metadata": handoff_metadata,
-                    "result": report_content,
-                    "updated_at": datetime.utcnow().isoformat()
-                })
-            )
+            try:
+                db = get_db()
+                if db is not None:
+                    db.scans.update_one(
+                        {"scan_id": scan_id},
+                        {"$set": {
+                            "status": "complete",
+                            "current_step": 5,
+                            "status_message": "CRITICAL: No privacy policy found. Ready to anchor violation.",
+                            "metadata": handoff_metadata,
+                            "result": report_content,
+                            "updated_at": datetime.utcnow()
+                        }, "$setOnInsert": {"scan_id": scan_id, "created_at": datetime.utcnow()}},
+                        upsert=True,
+                    )
+            except Exception as e:
+                logger.warning("Failed to persist fallback final status to DB: %s", e)
             return
 
         # Step 2: AI Analysis
@@ -253,6 +250,7 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
         # NEW: Permanent Persistence (MongoDB) with Blockchain Metadata
         if db is not None:
             try:
+                # Persist final scan with status 'complete' so UI can display results
                 db.scans.insert_one({
                     "id": scan_id, # CRITICAL: satisfies unique index id_1
                     "scan_id": scan_id,
@@ -289,7 +287,7 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
                     "audit_hash": audit_hash,
                     "wallet_address": wallet_address,
                     "tx_id": None,
-                    "status": "scanned",
+                    "status": "complete",
                     "blockchain": {
                         "tx_id": None,
                         "status": "pending"
@@ -324,14 +322,7 @@ async def run_scan(scan_id: str, url: str, wallet_address: str = "", user_email:
             "audit_hash": audit_hash,
             "scanner_version": "v1"
         }
-        update_status(
-            scan_id,
-            5,
-            "Audit Ready. Please sign with your wallet.",
-            status="complete",
-            metadata=handoff_metadata,
-            result=result_payload
-        )
+        update_status(scan_id, 5, "Audit Ready. Please sign with your wallet.", status="complete", metadata=handoff_metadata, result=result_payload)
         print(f"BLOCKD: [DONE] scan_id: {scan_id} - Syncing with Algorand... Complete.")
         
     except Exception as e:

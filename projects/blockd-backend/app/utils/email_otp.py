@@ -14,23 +14,15 @@ import string
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-import redis
-
 from ..config import settings
-
-# ---------------------------------------------------------------------------
-# Redis client (reuses the same Redis URL as the rest of the app)
-# ---------------------------------------------------------------------------
-_redis: redis.Redis | None = None
+from ..services.db import get_db
 
 
-def _get_redis() -> redis.Redis:
-    global _redis
-    if _redis is None:
-        _redis = redis.Redis.from_url(
-            settings.REDIS_URL, decode_responses=True, socket_connect_timeout=2
-        )
-    return _redis
+def _ensure_otp_index(db):
+  try:
+    db.otps.create_index("created_at", expireAfterSeconds=int(settings.OTP_EXPIRE_SECONDS))
+  except Exception:
+    pass
 
 
 def _otp_key(email: str) -> str:
@@ -48,26 +40,37 @@ def generate_otp(length: int = 6) -> str:
 _MOCK_REDIS = {}
 
 def store_otp(email: str, otp: str) -> None:
-    try:
-        r = _get_redis()
-        r.setex(_otp_key(email), settings.OTP_EXPIRE_SECONDS, otp)
-    except Exception as e:
-        print(f"Redis offline, storing OTP in memory for {email}: {otp}")
-        _MOCK_REDIS[_otp_key(email)] = otp
+  db = get_db()
+  if db is None:
+    print(f"DB offline, storing OTP in memory for {email}: {otp}")
+    _MOCK_REDIS[_otp_key(email)] = otp
+    return
+  _ensure_otp_index(db)
+  try:
+    db.otps.update_one({"email": email.lower()}, {"$set": {"otp": otp, "created_at": datetime.utcnow()}}, upsert=True)
+  except Exception as e:
+    print(f"DB write failed, storing OTP in memory for {email}: {otp} - {e}")
+    _MOCK_REDIS[_otp_key(email)] = otp
 
 def verify_otp(email: str, code: str) -> bool:
     key = _otp_key(email)
+  db = get_db()
+  if db is not None:
     try:
-        r = _get_redis()
-        stored = r.get(key)
-        if stored and stored == code.strip():
-            r.delete(key)
-            return True
+      rec = db.otps.find_one({"email": email.lower()})
+      if rec and rec.get("otp") == code.strip():
+        try:
+          db.otps.delete_one({"email": email.lower()})
+        except Exception:
+          pass
+        return True
     except Exception:
-        stored = _MOCK_REDIS.get(key)
-        if stored and stored == code.strip():
-            del _MOCK_REDIS[key]
-            return True
+      pass
+  # fallback to in-memory mock (development)
+  stored = _MOCK_REDIS.get(key)
+  if stored and stored == code.strip():
+    del _MOCK_REDIS[key]
+    return True
     return False
 
 

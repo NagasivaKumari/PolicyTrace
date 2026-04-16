@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     OTP_EXPIRE_SECONDS: int = 600  # 10 minutes
     FRONTEND_URL: str = "http://localhost:3000"
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    # When false, do NOT synthesize fallback high-risk reports when no policy is found.
+    # Set ALLOW_FALLBACK=false in production to require real extracted policy content.
+    ALLOW_FALLBACK: bool = True
     # When true, ensure MongoDB indexes exist on startup.
     AUTO_CREATE_TABLES: bool = True
     TRUST_PROXY_HEADERS: bool = False

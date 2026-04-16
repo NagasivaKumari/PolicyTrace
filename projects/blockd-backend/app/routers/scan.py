@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
 import json
-import redis
 from fastapi import APIRouter, Depends, HTTPException, Query, status, BackgroundTasks
 
 from ..tasks.scan_task import run_scan
@@ -15,27 +14,7 @@ from ..services.algorand_service import AlgorandService
 
 router = APIRouter()
 algo_service = AlgorandService()
-# Safe Redis init (do not crash startup on bad URL)
-redis_client = None
-try:
-    _url = (settings.REDIS_URL or "redis://127.0.0.1:6379/0")
-    if _url and (_url.startswith("redis://") or _url.startswith("rediss://") or _url.startswith("unix://")):
-        try:
-            _client = redis.from_url(_url, socket_connect_timeout=2)
-            try:
-                _client.ping()
-                redis_client = _client
-            except Exception:
-                redis_client = _client
-        except Exception as e:
-            print(f"Warning: Redis.from_url failed at init: {e}")
-            redis_client = None
-    else:
-        print("Warning: REDIS_URL missing or invalid scheme; skipping Redis init")
-        redis_client = None
-except Exception as e:
-    print(f"Warning: Redis init error: {e}")
-    redis_client = None
+# Redis removed: status/progress is stored in MongoDB (`scans` collection).
 
 
 class ScanCreate(BaseModel):
@@ -314,20 +293,22 @@ async def create_scan(
 
     scan_id = str(uuid.uuid4())
     
-    # Init progress in Redis immediately
+    # Init progress in MongoDB immediately (upsert minimal placeholder)
     status_data = {
         "id": scan_id,
+        "scan_id": scan_id,
         "status": "scanning",
         "current_step": 1,
         "status_message": "Initializing Fast-Track Test Node..." if scan_in.is_simple else "Protocol initialized. Waking up AI auditor...",
-        "updated_at": datetime.utcnow().isoformat()
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
     }
     try:
-        if redis_client:
-            redis_client.setex(f"blockd:scan:{scan_id}", 3600, json.dumps(status_data))
+        db = get_db()
+        if db is not None:
+            db.scans.update_one({"scan_id": scan_id}, {"$set": status_data}, upsert=True)
     except Exception as e:
-        # Non-fatal: continue without Redis
-        print(f"Warning: failed to write scan status to Redis: {e}")
+        print(f"Warning: failed to persist initial scan status to DB: {e}")
 
     email = getattr(current_user, 'email', None)
 
@@ -362,39 +343,10 @@ async def get_scan(
     """
     Check the status or fetch final results of a scan, locked to the owner's wallet.
     """
-    # 1. Check Redis for active progress (Scraping/Audit phase)
-    # Note: Redis status is temporary. We verify identity in Step 2.
-    progress_raw = None
-    if redis_client:
-        try:
-            progress_raw = redis_client.get(f"blockd:scan:{scan_id}")
-        except Exception as e:
-            # Don't allow Redis errors to bubble and break the request/CORS handling
-            print(f"Warning: Redis GET failed for scan {scan_id}: {e}")
-            progress_raw = None
-
-    if progress_raw:
-        try:
-            data = json.loads(progress_raw)
-        except Exception:
-            # If Redis returned malformed data, ignore and fallback to DB
-            data = None
-
-        if data:
-            # Optional: Add identity check if needed for in-progress scans
-            if isinstance(data, dict) and isinstance(data.get("result"), dict):
-                merged = {**data, **data["result"]}
-                merged.pop("result", None)
-                return merged
-            return data
-
-    # 2. Check MongoDB for persistent/complete state
+    # 1. Check MongoDB for active/progress or final results
     db = get_db()
     if db is not None:
-        doc = db.scans.find_one({
-            "scan_id": scan_id, 
-            "user.wallet": current_user.wallet_address
-        }, {"_id": 0})
+        doc = db.scans.find_one({"scan_id": scan_id, "user.wallet": current_user.wallet_address}, {"_id": 0})
         if doc:
             return doc
 
