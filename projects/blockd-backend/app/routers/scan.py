@@ -15,10 +15,27 @@ from ..services.algorand_service import AlgorandService
 
 router = APIRouter()
 algo_service = AlgorandService()
-redis_client = redis.from_url(
-    settings.REDIS_URL or "redis://127.0.0.1:6379/0", 
-    socket_connect_timeout=2
-)
+# Safe Redis init (do not crash startup on bad URL)
+redis_client = None
+try:
+    _url = (settings.REDIS_URL or "redis://127.0.0.1:6379/0")
+    if _url and (_url.startswith("redis://") or _url.startswith("rediss://") or _url.startswith("unix://")):
+        try:
+            _client = redis.from_url(_url, socket_connect_timeout=2)
+            try:
+                _client.ping()
+                redis_client = _client
+            except Exception:
+                redis_client = _client
+        except Exception as e:
+            print(f"Warning: Redis.from_url failed at init: {e}")
+            redis_client = None
+    else:
+        print("Warning: REDIS_URL missing or invalid scheme; skipping Redis init")
+        redis_client = None
+except Exception as e:
+    print(f"Warning: Redis init error: {e}")
+    redis_client = None
 
 
 class ScanCreate(BaseModel):
@@ -305,7 +322,12 @@ async def create_scan(
         "status_message": "Initializing Fast-Track Test Node..." if scan_in.is_simple else "Protocol initialized. Waking up AI auditor...",
         "updated_at": datetime.utcnow().isoformat()
     }
-    redis_client.setex(f"blockd:scan:{scan_id}", 3600, json.dumps(status_data))
+    try:
+        if redis_client:
+            redis_client.setex(f"blockd:scan:{scan_id}", 3600, json.dumps(status_data))
+    except Exception as e:
+        # Non-fatal: continue without Redis
+        print(f"Warning: failed to write scan status to Redis: {e}")
 
     email = getattr(current_user, 'email', None)
 

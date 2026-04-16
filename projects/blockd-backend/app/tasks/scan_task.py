@@ -14,11 +14,29 @@ db = get_db()
 
 logger = logging.getLogger(__name__)
 
-# Initialize Redis client for status tracking
-redis_client = redis.from_url(
-    settings.REDIS_URL or "redis://127.0.0.1:6379/0", 
-    socket_connect_timeout=2
-)
+# Initialize Redis client for status tracking (fail-safe)
+redis_client = None
+try:
+    url = (settings.REDIS_URL or "redis://127.0.0.1:6379/0")
+    if url and (url.startswith("redis://") or url.startswith("rediss://") or url.startswith("unix://")):
+        try:
+            client = redis.from_url(url, socket_connect_timeout=2)
+            # test connection non-fatally
+            try:
+                client.ping()
+                redis_client = client
+            except Exception:
+                # connection may be transient; keep client so calls may still work and will be caught
+                redis_client = client
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"Redis.from_url failed at init: {e}")
+            redis_client = None
+    else:
+        logging.getLogger(__name__).warning("Redis URL missing or invalid scheme; skipping Redis init")
+        redis_client = None
+except Exception as e:
+    logging.getLogger(__name__).warning(f"Redis init error: {e}")
+    redis_client = None
 
 def update_status(scan_id, step, message, status="scanning", metadata=None, result=None):
     """Update intermediate progress in Redis for live UI updates."""
