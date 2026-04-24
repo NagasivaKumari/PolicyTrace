@@ -210,16 +210,6 @@ Verification recomputes hashes from IPFS and compares to on-chain values.
 
 ---
 
-## ✅ Hackathon Demo Checklist
-
-- Scan a public policy URL
-- Show violations + evidence
-- Anchor hash on Algorand
-- Verify via IPFS re-hash
-- Show compliance timeline
-
----
-
 ## 📊 Future Scope
 
 - Auto re-audit on meaningful policy changes
@@ -228,16 +218,9 @@ Verification recomputes hashes from IPFS and compares to on-chain values.
 
 ---
 
-## 👥 Team
-
-- TODO - Role
-- TODO - Role
-
 ---
 
 ## 📜 License
 
 MIT
 
----
-*Built with ❤️ for a more transparent internet by Antigravity*
